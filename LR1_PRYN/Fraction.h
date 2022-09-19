@@ -7,7 +7,7 @@ using namespace std;
 
 // функция поиска НОД
 int gcd(int a, int b) {
-	return b ? gcd(a, a % b) : a;
+	return b > 0 ? gcd(b, a % b) : a;
 }
 
 // функция наименьшего общего кратного (НОК)
@@ -25,7 +25,7 @@ private:
 	// функция сокращения дроби
 	void reduce() {
 		// поиск НОД
-		int _gcd = gcd(abs(numerator), abs(denominator));
+		int _gcd = gcd(abs(numerator), denominator);
 		if (_gcd != 1) {
 			numerator = numerator / _gcd;
 			denominator = denominator / _gcd;

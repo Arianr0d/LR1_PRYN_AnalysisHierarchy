@@ -27,6 +27,7 @@ void output(vector<pair<int, float>> &opt) {
 
 // функция поиска оптимальной альтернативы
 void findOptimalAlternative(vector<float> &pr_w, vector<pair<int, float>> &opt) {
+	
 	float max_value = pr_w[0];
 	opt.push_back(make_pair(1, max_value));
 
@@ -44,38 +45,38 @@ void findOptimalAlternative(vector<float> &pr_w, vector<pair<int, float>> &opt) 
 
 // функция поиска окончательных приоритетов альтернатив
 void findPriorityAlternative(vector<float>& pr_e, vector<vector<float>>& pr_w_i, vector<float>& pr_w) {
-	
+
 	for (int i = 0; i < pr_w.size(); i++) {
-		float sum = 0;
+		float sum = 0.0;
 		for (int j = 0; j < pr_e.size(); j++) {
 			sum += pr_e[j] * pr_w_i[j][i];
 		}
-		pr_w.push_back(sum);
+		pr_w[i] = sum;
 	}
 }
 
 // функция поиска приоритета матрицы
 void findPriority(Fraction** matrix, int size, vector<float>& pr) {
 
-	float pr_sum = 0;
+	float pr_sum = 0.0;
 	for (int i = 0; i < size; i++) {
 
-		Fraction value(1, 1);
+		Fraction value;
 		for (int j = 0; j < size; j++) {
-			value = matrix[i][j].operator*(value);
+			value = value.operator*(matrix[i][j]);
 		}
-		pr.push_back(pow(value.getNumerator() / value.getDenominator(), 1.0 / size));
+		pr.push_back(pow(float(value.getNumerator()) / float(value.getDenominator()), 1.0 / size));
 		pr_sum += pr[i];
 	}
 
 	for (int i = 0; i < size; i++) {
-		pr[i] /= pr_sum;
+		pr[i] /= float(pr_sum);
 	}
 }
 
 // функция реализации алгоритма анализа иерархий
-void algorithmAnalysisHierarchy(int n, int m, int count_w, Fraction** E, 
-	vector<Fraction**> W, vector<pair<int, float>> &opt) {
+void algorithmAnalysisHierarchy(int n, int m, int count_w, Fraction** &E, 
+	vector<Fraction**> &W, vector<pair<int, float>> &opt) {
 
 	vector<float> pr_e;
 	vector<vector<float>> pr_w_i(count_w);
@@ -112,7 +113,7 @@ void inputMatrix(int n, Fraction** matrix) {
 }
 
 // функция считывания матриц из файла
-void importFromFile(int n, int m, Fraction** matrix_e, vector<Fraction**> matrix_w) {
+void importFromFile(int n, int m, Fraction** &matrix_e, vector<Fraction**> &matrix_w) {
 
 	string str;
 	ifstream in("input.txt");
@@ -121,6 +122,7 @@ void importFromFile(int n, int m, Fraction** matrix_e, vector<Fraction**> matrix
 			k = -1,
 			count_w = matrix_w.size();
 		while (getline(in, str)) {
+
 			if (str.size() == 0) continue;
 
 			string row;
@@ -162,13 +164,13 @@ int main() {
 	}
 
 	if (ans == "no") {
-		cout << "Введите размер матрицы Е:";
+		cout << "Введите размер матрицы Е: ";
 		cin >> n;
-		cout << "Введите число матриц W:";
+		cout << "Введите число матриц W: ";
 		cin >> count_w;
-		cout << "Введите размер матриц W:";
+		cout << "Введите размер матриц W: ";
 		cin >> m;
-		cout << "Введите матрицу Е:" << endl;
+		cout << "Введите матрицу Е: " << endl;
 	}
 
 	Fraction** E = new Fraction * [n];
@@ -198,4 +200,6 @@ int main() {
 
 	// запись результата в файл
 	output(opt);
+
+	cout << "Результаты сохранены!";
 }
