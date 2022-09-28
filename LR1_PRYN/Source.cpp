@@ -104,11 +104,19 @@ void algorithmAnalysisHierarchy(int n, int m, int count_w, Fraction** &E,
 }
 
 // функция считывания матриц из файла
-void importFromFile(int n, int m, Fraction** &matrix_e, vector<Fraction**> &matrix_w) {
+void importFromFile(int &n, int &m, int &count_W, Fraction** &matrix_e, vector<Fraction**> &matrix_w) {
 
 	string str;
 	ifstream in("input.txt");
 	if (in.is_open()) {
+		// считывание 
+		getline(in, str);
+		n = stoi(str);
+		getline(in, str);
+		m = stoi(str);
+		getline(in, str);
+		count_W = stoi(str);
+
 		int i = 0,
 			k = -1,
 			count_w = matrix_w.size();
@@ -144,9 +152,9 @@ int main() {
 	setlocale(LC_ALL, "ru");
 
 	// считывание данных
-	int n = 7, 
-		m = 6,
-		count_w = 7;
+	int n = 7, // размер матрицы E
+		m = 6, // размер матрицы W
+		count_w = 7; // число матриц W
 	cout << "Алгоритм поиска приоритетов альтернатив и оптимальной альтернативы\n" <<
 		"методом анализа иерархий" << endl << endl;
 	cout << "Считывание данных из файла!" << endl;
@@ -164,7 +172,7 @@ int main() {
 		}
 	}
 	// считывание значений по умолчанию
-	importFromFile(n, m, std::ref(E), std::ref(W));
+	importFromFile(n, m, count_w, ref(E), ref(W));
 
 	vector<float> pr_w(m);
 	vector<pair<int, float>> opt;
