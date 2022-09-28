@@ -10,16 +10,25 @@ using namespace std;
 */
 
 // функция записи результата в файл
-void output(vector<pair<int, float>> &opt) {
+void output(vector<float>& pr_w, vector<pair<int, float>> &opt) {
 
 	ofstream out;
+	// открытие файла на запись
 	out.open("output.txt");
 	if (out.is_open()) {
 		if (opt.empty()) out << "Оптимальная альтернатива отсутствует!" << std::endl;
 		else {
+			out << "Приоритеты альтернатив:\n";
+			for (int i = 0; i < pr_w.size(); i++) {
+				out << "w" + to_string(i + 1) << " = " + to_string(round(pr_w[i] * pow(10, 6)) / pow(10, 6)) + "; ";
+			}
+			out << "\nОптимальная альтернатива";
 			for (int i = 0; i < opt.size(); i++) {
-				out << "Оптимальная альтернатива x" + to_string(opt[i].first) + " с приоритетом w" +
-					to_string(opt[i].first) + " = " + to_string(round(opt[i].second * pow(10, 6)) / pow(10, 6)) << std::endl;
+				if (i > 0) {
+					out << ",";
+				}
+				out << " x" + to_string(opt[i].first) + " с приоритетом w" +
+					to_string(opt[i].first) + " = " + to_string(round(opt[i].second * pow(10, 6)) / pow(10, 6));
 			}
 		}
 	}
@@ -76,7 +85,7 @@ void findPriority(Fraction** matrix, int size, vector<float>& pr) {
 
 // функция реализации алгоритма анализа иерархий
 void algorithmAnalysisHierarchy(int n, int m, int count_w, Fraction** &E, 
-	vector<Fraction**> &W, vector<pair<int, float>> &opt) {
+	vector<Fraction**> &W, vector<float> &pr_w, vector<pair<int, float>> &opt) {
 
 	vector<float> pr_e;
 	vector<vector<float>> pr_w_i(count_w);
@@ -87,29 +96,11 @@ void algorithmAnalysisHierarchy(int n, int m, int count_w, Fraction** &E,
 		findPriority(W[i], m, std::ref(pr_w_i[i]));
 	}
 
-	vector<float> pr_w(m);
 	// окончательные приоритеты альтернатив
 	findPriorityAlternative(pr_e, pr_w_i, std::ref(pr_w));
 
 	// поиск оптимальной альтернативы
 	findOptimalAlternative(pr_w, std::ref(opt));
-}
-
-// функция считывания матриц из консоли
-void inputMatrix(int n, Fraction** matrix) {
-	
-	cin.ignore(cin.rdbuf()->in_avail());
-	for (int i = 0; i < n; i++) {
-		int j = 0;
-		string row;
-		getline(cin, row);
-		istringstream ist(row);
-		
-		while (ist >> row) {
-			matrix[i][j] = Fraction(row);
-			j++;
-		}
-	}
 }
 
 // функция считывания матриц из файла
@@ -153,34 +144,17 @@ int main() {
 	setlocale(LC_ALL, "ru");
 
 	// считывание данных
-	string ans;
 	int n = 7, 
 		m = 6,
 		count_w = 7;
 	cout << "Алгоритм поиска приоритетов альтернатив и оптимальной альтернативы\n" <<
 		"методом анализа иерархий" << endl << endl;
-	while (true) {
-		cout << "Использовать значения по умолчанию (2 вариант): (yes / no) ";
-		cin >> ans;
-		if (ans == "no" || ans == "yes") break;
-	}
-
-	if (ans == "no") {
-		cout << "Введите размер матрицы Е: ";
-		cin >> n;
-		cout << "Введите число матриц W: ";
-		cin >> count_w;
-		cout << "Введите размер матриц W: ";
-		cin >> m;
-		cout << "Введите матрицу Е: " << endl;
-	}
+	cout << "Считывание данных из файла!" << endl;
 
 	Fraction** E = new Fraction * [n];
 	for (int i = 0; i < n; i++) {
 		E[i] = new Fraction[n];
 	}
-
-	if (ans == "no") inputMatrix(n, std::ref(E));
 
 	vector<Fraction**> W;
 	for (int i = 0; i < count_w; i++) {
@@ -188,20 +162,17 @@ int main() {
 		for (int j = 0; j < m; j++) {
 			W[i][j] = new Fraction[m];
 		}
-		if (ans == "no") {
-			cout << "Введите матрицу W" + to_string(i + 1) + ":" << endl;
-			inputMatrix(m, std::ref(W[i]));
-		}
 	}
 	// считывание значений по умолчанию
-	if (ans == "yes") importFromFile(n, m, std::ref(E), std::ref(W));
+	importFromFile(n, m, std::ref(E), std::ref(W));
 
+	vector<float> pr_w(m);
 	vector<pair<int, float>> opt;
 	// реализация алгоритма анализа иерархий
-	algorithmAnalysisHierarchy(n, m, count_w, E, W, std::ref(opt));
+	algorithmAnalysisHierarchy(n, m, count_w, E, W, ref(pr_w), ref(opt));
 
 	// запись результата в файл
-	output(opt);
+	output(pr_w, opt);
 
-	cout << "\nРезультаты сохранены!";
+	cout << "Результаты успешно сохранены!" << endl;
 }
